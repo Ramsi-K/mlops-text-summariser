@@ -40,7 +40,7 @@ jobs:
           uv run pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ./coverage.xml
           flags: unittests
@@ -97,7 +97,7 @@ jobs:
           options: '-r src/ -f json -o bandit-report.json'
 
       - name: Upload security scan results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: bandit-report

@@ -9,6 +9,9 @@ class PredictionPipeline:
 
     def predict(self, text):
         import os
+        import time
+
+        start_time = time.time()
 
         # Check if fine-tuned model exists, otherwise use base model
         if os.path.exists(self.config.model_path) and os.path.exists(
@@ -25,16 +28,31 @@ class PredictionPipeline:
                 "Fine-tuned model not found, using base model: google/pegasus-cnn_dailymail"
             )
 
-        tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
-        gen_kwargs = {"length_penalty": 0.8, "num_beams": 8, "max_length": 128}
+        try:
+            print("Loading tokenizer...")
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_path)
 
-        pipe = pipeline("summarization", model=model_path, tokenizer=tokenizer)
+            print("Creating pipeline...")
+            gen_kwargs = {
+                "length_penalty": 0.8,
+                "num_beams": 8,
+                "max_length": 128,
+            }
+            pipe = pipeline("summarization", model=model_path, tokenizer=tokenizer)
 
-        print("Dialogue:")
-        print(text)
+            print("Dialogue:")
+            print(text)
 
-        output = pipe(text, **gen_kwargs)[0]["summary_text"]
-        print("\nModel Summary:")
-        print(output)
+            print("Generating summary...")
+            output = pipe(text, **gen_kwargs)[0]["summary_text"]
 
-        return output
+            elapsed_time = time.time() - start_time
+            print(f"\nModel Summary (generated in {elapsed_time: .2f}s): ")
+            print(output)
+
+            return output
+
+        except Exception as e:
+            print(f"Error during prediction: {str(e)}")
+            # Return a simple fallback summary
+            return f"Summary generation failed. Original text length: {len(text)} characters. Error: {str(e)}"

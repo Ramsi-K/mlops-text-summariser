@@ -18,6 +18,32 @@ async def index():
     return RedirectResponse(url="/docs")
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Docker"""
+    import os
+
+    from src.textSummariser.config.configuration import ConfigurationManager
+
+    config = ConfigurationManager().get_model_evaluation_config()
+
+    # Check if fine-tuned model exists
+    model_status = (
+        "fine-tuned"
+        if (os.path.exists(config.model_path) and os.path.exists(config.tokenizer_path))
+        else "base-model"
+    )
+
+    return {
+        "status": "healthy",
+        "model_status": model_status,
+        "model_path": config.model_path if os.path.exists(config.model_path) else "N/A",
+        "tokenizer_path": config.tokenizer_path
+        if os.path.exists(config.tokenizer_path)
+        else "N/A",
+    }
+
+
 @app.get("/train")
 async def training():
     try:
