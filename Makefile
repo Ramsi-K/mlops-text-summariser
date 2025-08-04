@@ -18,8 +18,16 @@ install-dev:  ## Install development dependencies
 	@echo "✅ Development environment set up"
 
 test:  ## Run tests
-	pytest tests/ -v --cov=src --cov-report=html
+	uv run pytest tests/ -v --cov=src --cov-report=html --cov-report=term
 	@echo "✅ Tests completed"
+
+test-unit:  ## Run unit tests only
+	uv run pytest tests/unit/ -v
+	@echo "✅ Unit tests completed"
+
+test-integration:  ## Run integration tests only
+	uv run pytest tests/integration/ -v
+	@echo "✅ Integration tests completed"
 
 lint:  ## Run linting
 	flake8 src tests
@@ -57,6 +65,13 @@ docker-build:  ## Build Docker image
 
 docker-run:  ## Run Docker container
 	docker run -p 8000:8000 text-summarizer
+
+# MLflow commands
+mlflow-ui:  ## Start MLflow UI
+	uv run mlflow ui --host 0.0.0.0 --port 5000
+
+mlflow-experiments:  ## List MLflow experiments
+	uv run mlflow experiments list
 
 # Utility commands
 clean:  ## Clean artifacts and cache

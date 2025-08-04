@@ -7,11 +7,16 @@ from tqdm import tqdm
 
 import evaluate
 from src.textSummariser.entity import ModelEvaluationConfig
+from src.textSummariser.utils.mlflow_utils import MLflowTracker
+from src.textSummariser.logging import logger
 
 
 class ModelEvaluation:
     def __init__(self, config: ModelEvaluationConfig):
         self.config = config
+        self.mlflow_tracker = MLflowTracker(
+            experiment_name="text-summarization-evaluation"
+        )
 
     def generate_batch_sized_chunks(self, list_of_elements, batch_size):
         """split the dataset into smaller batches that we can process simultaneously
@@ -82,33 +87,86 @@ class ModelEvaluation:
         return score
 
     def evaluate(self):
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        tokenizer = AutoTokenizer.from_pretrained(self.config.tokenizer_path)
-        model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(
-            self.config.model_path
-        ).to(device)
+        # Start MLflow run for evaluation
+        with self.mlflow_tracker.start_run(
+            run_name="pegasus-samsum-evaluation"
+        ) as run:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            logger.info(f"Starting model evaluation on device: {device}")
 
-        # loading data
-        dataset_samsum_pt = load_from_disk(self.config.data_path)
+            # Log evaluation parameters
+            eval_params = {
+                "device": device,
+                "model_path": self.config.model_path,
+                "tokenizer_path": self.config.tokenizer_path,
+                "data_path": self.config.data_path,
+                "batch_size": 2,
+                "max_samples": 10,  # Using first 10 samples for quick evaluation
+            }
+            self.mlflow_tracker.log_params(eval_params)
 
-        rouge_names = ["rouge1", "rouge2", "rougeL", "rougeLsum"]
+            tokenizer = AutoTokenizer.from_pretrained(
+                self.config.tokenizer_path
+            )
+            model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(
+                self.config.model_path
+            ).to(device)
 
-        rouge_metric = evaluate.load("rouge")
+            # loading data
+            dataset_samsum_pt = load_from_disk(self.config.data_path)
 
-        # rouge_metric = rouge_metric
+            # Log dataset info
+            dataset_info = {
+                "name": "samsum_evaluation",
+                "test_samples": len(dataset_samsum_pt["test"]),
+                "samples_evaluated": 10,
+            }
+            self.mlflow_tracker.log_dataset_info(dataset_info)
 
-        score = self.calculate_metric_on_test_ds(
-            dataset_samsum_pt["test"][0:10],
-            rouge_metric,
-            model_pegasus,
-            tokenizer,
-            batch_size=2,
-            column_text="dialogue",
-            column_summary="summary",
-        )
+            rouge_names = ["rouge1", "rouge2", "rougeL", "rougeLsum"]
+            rouge_metric = evaluate.load("rouge")
 
-        # Directly use the scores without accessing fmeasure or mid
-        rouge_dict = {rn: score[rn] for rn in rouge_names}
+            logger.info("Calculating ROUGE metrics on test dataset...")
+            score = self.calculate_metric_on_test_ds(
+                dataset_samsum_pt["test"][0:10],
+                rouge_metric,
+                model_pegasus,
+                tokenizer,
+                batch_size=2,
+                column_text="dialogue",
+                column_summary="summary",
+            )
 
-        df = pd.DataFrame(rouge_dict, index=["pegasus"])
-        df.to_csv(self.config.metric_file_name, index=False)
+            # Extract ROUGE scores
+            rouge_dict = {rn: score[rn] for rn in rouge_names}
+
+            # Log metrics to MLflow
+            self.mlflow_tracker.log_metrics(rouge_dict)
+
+            # Log individual ROUGE components if available
+            for rouge_name in rouge_names:
+                if isinstance(rouge_dict[rouge_name], dict):
+                    # If the score is a dict with precision, recall, fmeasure
+                    for metric_type, value in rouge_dict[rouge_name].items():
+                        self.mlflow_tracker.log_metrics(
+                            {f"{rouge_name}_{metric_type}": value}
+                        )
+                else:
+                    # If it's a single value
+                    self.mlflow_tracker.log_metrics(
+                        {rouge_name: rouge_dict[rouge_name]}
+                    )
+
+            # Save results to CSV
+            df = pd.DataFrame(rouge_dict, index=["pegasus"])
+            df.to_csv(self.config.metric_file_name, index=False)
+
+            # Log the results CSV as artifact
+            self.mlflow_tracker.log_artifact(
+                self.config.metric_file_name, "evaluation_results"
+            )
+
+            logger.info("Model evaluation completed and logged to MLflow")
+            logger.info(f"ROUGE Scores: {rouge_dict}")
+
+            return rouge_dict
