@@ -1,16 +1,13 @@
 import mlflow
 import mlflow.transformers
-import os
-from pathlib import Path
+
 from src.textSummariser.logging import logger
 
 
 class MLflowTracker:
     """MLflow experiment tracking utilities"""
 
-    def __init__(
-        self, experiment_name="text-summarization", tracking_uri=None
-    ):
+    def __init__(self, experiment_name="text-summarization", tracking_uri=None):
         self.experiment_name = experiment_name
 
         # Set tracking URI (local by default)
@@ -64,9 +61,7 @@ class MLflowTracker:
         except Exception as e:
             logger.error(f"Error logging metrics: {e}")
 
-    def log_model(
-        self, model, tokenizer, artifact_path="model", model_name=None
-    ):
+    def log_model(self, model, tokenizer, artifact_path="model", model_name=None):
         """Log model and tokenizer to MLflow"""
         try:
             # Log the transformers model
@@ -113,9 +108,7 @@ class MLflowTracker:
         logger.info("Ended MLflow run")
 
     @staticmethod
-    def get_best_model(
-        experiment_name, metric_name="rouge_l", ascending=False
-    ):
+    def get_best_model(experiment_name, metric_name="rouge_l", ascending=False):
         """Get the best model from an experiment based on a metric"""
         try:
             experiment = mlflow.get_experiment_by_name(experiment_name)
@@ -125,15 +118,11 @@ class MLflowTracker:
 
             runs = mlflow.search_runs(
                 experiment_ids=[experiment.experiment_id],
-                order_by=[
-                    f"metrics.{metric_name} {'ASC' if ascending else 'DESC'}"
-                ],
+                order_by=[f"metrics.{metric_name} {'ASC' if ascending else 'DESC'}"],
             )
 
             if len(runs) == 0:
-                logger.warning(
-                    f"No runs found in experiment {experiment_name}"
-                )
+                logger.warning(f"No runs found in experiment {experiment_name}")
                 return None
 
             best_run = runs.iloc[0]

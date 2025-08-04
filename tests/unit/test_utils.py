@@ -1,9 +1,11 @@
-import pytest
 import tempfile
-import yaml
 from pathlib import Path
+
+import pytest
+import yaml
 from box import ConfigBox
-from src.textSummariser.utils.common import read_yaml, create_directories
+
+from src.textSummariser.utils.common import create_directories, read_yaml
 
 
 class TestCommonUtils:

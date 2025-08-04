@@ -1,8 +1,10 @@
-import pytest
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
+
+import pytest
+
 from src.textSummariser.pipeline.stage_1_data_ingestion_pipeline import (
     DataIngestionTrainingPipeline,
 )

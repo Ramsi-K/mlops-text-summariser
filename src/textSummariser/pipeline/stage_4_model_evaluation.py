@@ -1,6 +1,5 @@
-from src.textSummariser.config.configuration import ConfigurationManager
 from src.textSummariser.components.model_evaluation import ModelEvaluation
-from src.textSummariser.logging import logger
+from src.textSummariser.config.configuration import ConfigurationManager
 
 
 class ModelEvaluationTrainingPipeline:

@@ -45,13 +45,13 @@ This project addresses the challenge of automatically summarizing conversational
 
 ## Features
 
-✅ **4-Stage Modular Pipeline** - Data ingestion, transformation, training, evaluation  
-✅ **MLflow Integration** - Experiment tracking and model registry  
-✅ **FastAPI Server** - Production-ready inference API  
-✅ **Docker Support** - Containerized deployment  
-✅ **Configuration Management** - YAML-based configs with validation  
-✅ **Comprehensive Logging** - Structured logging throughout pipeline  
-✅ **Model Monitoring** - Performance tracking and drift detection  
+✅ **4-Stage Modular Pipeline** - Data ingestion, transformation, training, evaluation
+✅ **MLflow Integration** - Experiment tracking and model registry
+✅ **FastAPI Server** - Production-ready inference API
+✅ **Docker Support** - Containerized deployment
+✅ **Configuration Management** - YAML-based configs with validation
+✅ **Comprehensive Logging** - Structured logging throughout pipeline
+✅ **Model Monitoring** - Performance tracking and drift detection
 ✅ **Reproducible Experiments** - Seed management and environment control
 
 ## Quick Start
@@ -68,7 +68,7 @@ This project addresses the challenge of automatically summarizing conversational
 
    ```bash
    git clone <repository-url>
-   cd text-summarization-mlops
+   cd mlops-text-summariser
    ```
 
 2. **Set up environment with UV**
@@ -171,8 +171,8 @@ make docker-run
 
 ## Project Structure
 
-```
-text-summarization-mlops/
+```text
+mlops-text-summariser/
 ├── src/textSummariser/           # Main package
 │   ├── components/               # Pipeline components
 │   ├── config/                   # Configuration management
@@ -320,16 +320,6 @@ The application includes built-in monitoring:
 - **Logging** with structured format
 - **Error tracking** and alerting
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests and linting (`make test lint`)
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
-
 ## Troubleshooting
 
 ### Common Issues
@@ -356,13 +346,6 @@ uv pip install torch torchvision torchaudio --index-url https://download.pytorch
 - Verify Hugging Face Hub access
 - Use offline mode if needed
 
-### Getting Help
-
-- 📖 Check the [documentation](docs/)
-- 🐛 Report bugs via [GitHub Issues](issues)
-- 💬 Join our [Discord community](discord-link)
-- 📧 Email: support@example.com
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -375,5 +358,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [FastAPI](https://fastapi.tiangolo.com/) for the web framework
 
 ---
-
-**Built with ❤️ for the MLOps community**

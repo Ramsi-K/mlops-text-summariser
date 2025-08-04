@@ -1,5 +1,7 @@
+from unittest.mock import MagicMock, Mock, patch
+
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+
 from src.textSummariser.utils.mlflow_utils import MLflowTracker
 
 
@@ -15,12 +17,8 @@ class TestMLflowTracker:
         tracker = MLflowTracker("test-experiment")
 
         mock_mlflow.set_tracking_uri.assert_called_once_with("file:./mlruns")
-        mock_mlflow.get_experiment_by_name.assert_called_once_with(
-            "test-experiment"
-        )
-        mock_mlflow.create_experiment.assert_called_once_with(
-            "test-experiment"
-        )
+        mock_mlflow.get_experiment_by_name.assert_called_once_with("test-experiment")
+        mock_mlflow.create_experiment.assert_called_once_with("test-experiment")
         mock_mlflow.set_experiment.assert_called_once_with("test-experiment")
 
     @patch("src.textSummariser.utils.mlflow_utils.mlflow")
@@ -36,9 +34,7 @@ class TestMLflowTracker:
             "existing-experiment"
         )
         mock_mlflow.create_experiment.assert_not_called()
-        mock_mlflow.set_experiment.assert_called_once_with(
-            "existing-experiment"
-        )
+        mock_mlflow.set_experiment.assert_called_once_with("existing-experiment")
 
     @patch("src.textSummariser.utils.mlflow_utils.mlflow")
     def test_log_params(self, mock_mlflow):
@@ -134,7 +130,5 @@ class TestMLflowTracker:
         best_run = MLflowTracker.get_best_model("test-experiment", "rouge_l")
 
         assert best_run is not None
-        mock_mlflow.get_experiment_by_name.assert_called_once_with(
-            "test-experiment"
-        )
+        mock_mlflow.get_experiment_by_name.assert_called_once_with("test-experiment")
         mock_mlflow.search_runs.assert_called_once()

@@ -13,8 +13,7 @@ install:  ## Install dependencies with UV
 
 install-dev:  ## Install development dependencies
 	uv pip install -r requirements.txt
-	uv pip install pytest black flake8 isort pre-commit
-	pre-commit install
+	uv run pre-commit install
 	@echo "✅ Development environment set up"
 
 test:  ## Run tests
@@ -30,15 +29,22 @@ test-integration:  ## Run integration tests only
 	@echo "✅ Integration tests completed"
 
 lint:  ## Run linting
-	flake8 src tests
-	black --check src tests
-	isort --check-only src tests
+	uv run flake8 src
+	uv run black --check src
+	uv run isort --check-only src
 	@echo "✅ Linting completed"
 
 format:  ## Format code
-	black src tests
-	isort src tests
+	uv run black src
+	uv run isort src
 	@echo "✅ Code formatted"
+
+pre-commit-install:  ## Install pre-commit hooks
+	uv run pre-commit install
+	@echo "✅ Pre-commit hooks installed"
+
+pre-commit-run:  ## Run pre-commit on all files
+	uv run pre-commit run --all-files
 
 # Pipeline stages
 ingest:  ## Run data ingestion only
@@ -55,6 +61,9 @@ evaluate:  ## Run model evaluation only
 
 pipeline:  ## Run full pipeline
 	uv run main.py --stage all
+
+quick-train:  ## Run quick training pipeline (for development)
+	uv run quick_train.py
 
 serve:  ## Start FastAPI server
 	uv run uvicorn app:app --host 0.0.0.0 --port 8000 --reload

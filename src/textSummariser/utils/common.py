@@ -1,10 +1,11 @@
 import os
-from box.exceptions import BoxValueError
-import yaml
-from src.textSummariser.logging import logger
-from box import ConfigBox
 from pathlib import Path
-from typing import Any
+
+import yaml
+from box import ConfigBox
+from box.exceptions import BoxValueError
+
+from src.textSummariser.logging import logger
 
 
 def read_yaml(path_to_yaml: Path) -> ConfigBox:

@@ -1,6 +1,6 @@
+from transformers import AutoTokenizer, pipeline
+
 from src.textSummariser.config.configuration import ConfigurationManager
-from transformers import AutoTokenizer
-from transformers import pipeline
 
 
 class PredictionPipeline:

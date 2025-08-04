@@ -1,14 +1,13 @@
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from datasets import load_from_disk
-
-import torch
-import pandas as pd
-from tqdm import tqdm
-
 import evaluate
+import pandas as pd
+import torch
+from datasets import load_from_disk
+from tqdm import tqdm
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
 from src.textSummariser.entity import ModelEvaluationConfig
-from src.textSummariser.utils.mlflow_utils import MLflowTracker
 from src.textSummariser.logging import logger
+from src.textSummariser.utils.mlflow_utils import MLflowTracker
 
 
 class ModelEvaluation:
@@ -39,15 +38,12 @@ class ModelEvaluation:
             self.generate_batch_sized_chunks(dataset[column_text], batch_size)
         )
         target_batches = list(
-            self.generate_batch_sized_chunks(
-                dataset[column_summary], batch_size
-            )
+            self.generate_batch_sized_chunks(dataset[column_summary], batch_size)
         )
 
         for article_batch, target_batch in tqdm(
             zip(article_batches, target_batches), total=len(article_batches)
         ):
-
             inputs = tokenizer(
                 article_batch,
                 max_length=1024,
@@ -78,9 +74,7 @@ class ModelEvaluation:
 
             decoded_summaries = [d.replace("", " ") for d in decoded_summaries]
 
-            metric.add_batch(
-                predictions=decoded_summaries, references=target_batch
-            )
+            metric.add_batch(predictions=decoded_summaries, references=target_batch)
 
         #  Finally compute and return the ROUGE scores.
         score = metric.compute()
@@ -88,9 +82,7 @@ class ModelEvaluation:
 
     def evaluate(self):
         # Start MLflow run for evaluation
-        with self.mlflow_tracker.start_run(
-            run_name="pegasus-samsum-evaluation"
-        ) as run:
+        with self.mlflow_tracker.start_run(run_name="pegasus-samsum-evaluation"):
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info(f"Starting model evaluation on device: {device}")
 
@@ -105,9 +97,7 @@ class ModelEvaluation:
             }
             self.mlflow_tracker.log_params(eval_params)
 
-            tokenizer = AutoTokenizer.from_pretrained(
-                self.config.tokenizer_path
-            )
+            tokenizer = AutoTokenizer.from_pretrained(self.config.tokenizer_path)
             model_pegasus = AutoModelForSeq2SeqLM.from_pretrained(
                 self.config.model_path
             ).to(device)

@@ -1,12 +1,18 @@
-from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
-from transformers import TrainingArguments, Trainer
-from transformers import DataCollatorForSeq2Seq
+import os
+
 import torch
 from datasets import load_from_disk
-import os
+from transformers import (
+    AutoModelForSeq2SeqLM,
+    AutoTokenizer,
+    DataCollatorForSeq2Seq,
+    Trainer,
+    TrainingArguments,
+)
+
 from src.textSummariser.entity import ModelTrainerConfig
-from src.textSummariser.utils.mlflow_utils import MLflowTracker
 from src.textSummariser.logging import logger
+from src.textSummariser.utils.mlflow_utils import MLflowTracker
 
 
 class ModelTrainer:
@@ -18,9 +24,7 @@ class ModelTrainer:
 
     def train(self):
         # Start MLflow run
-        with self.mlflow_tracker.start_run(
-            run_name="pegasus-samsum-training"
-        ) as run:
+        with self.mlflow_tracker.start_run(run_name="pegasus-samsum-training"):
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info(f"Using device: {device}")
 
@@ -64,6 +68,7 @@ class ModelTrainer:
                 "eval_steps": self.config.eval_steps,
                 "save_steps": self.config.save_steps,
                 "gradient_accumulation_steps": self.config.gradient_accumulation_steps,
+                "max_steps": self.config.max_steps,
             }
             self.mlflow_tracker.log_params(training_params)
 
@@ -79,9 +84,22 @@ class ModelTrainer:
                 eval_steps=self.config.eval_steps,
                 save_steps=self.config.save_steps,
                 gradient_accumulation_steps=self.config.gradient_accumulation_steps,
+                max_steps=self.config.max_steps,  # Limit training steps
                 logging_dir=f"{self.config.root_dir}/logs",  # For tensorboard logs
                 report_to=["mlflow"],  # Enable MLflow logging
                 run_name="pegasus-samsum-training",
+            )
+
+            # Use smaller subset for faster training during development
+            train_subset = dataset_samsum_pt["train"].select(
+                range(min(100, len(dataset_samsum_pt["train"])))
+            )
+            eval_subset = dataset_samsum_pt["validation"].select(
+                range(min(50, len(dataset_samsum_pt["validation"])))
+            )
+
+            logger.info(
+                f"Using {len(train_subset)} training samples and {len(eval_subset)} validation samples for quick training"
             )
 
             trainer = Trainer(
@@ -89,10 +107,8 @@ class ModelTrainer:
                 args=trainer_args,
                 tokenizer=tokenizer,
                 data_collator=seq2seq_data_collator,
-                train_dataset=dataset_samsum_pt[
-                    "train"
-                ],  # Use train set, not test
-                eval_dataset=dataset_samsum_pt["validation"],
+                train_dataset=train_subset,
+                eval_dataset=eval_subset,
             )
 
             # Train the model
@@ -104,9 +120,7 @@ class ModelTrainer:
                 self.mlflow_tracker.log_metrics(train_result.metrics)
 
             # Save model locally
-            model_path = os.path.join(
-                self.config.root_dir, "pegasus-samsum-model"
-            )
+            model_path = os.path.join(self.config.root_dir, "pegasus-samsum-model")
             tokenizer_path = os.path.join(self.config.root_dir, "tokenizer")
 
             model_pegasus.save_pretrained(model_path)

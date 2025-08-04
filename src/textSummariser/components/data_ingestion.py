@@ -1,8 +1,9 @@
 import os
+
 from datasets import load_dataset
-from src.textSummariser.logging import logger
 
 from src.textSummariser.entity import DataIngestionConfig
+from src.textSummariser.logging import logger
 
 
 class DataIngestion:
@@ -23,18 +24,16 @@ class DataIngestion:
             # Try different possible names for SAMSum dataset
             try:
                 dataset = load_dataset("samsum")
-            except:
+            except Exception:
                 try:
                     dataset = load_dataset("knkarthick/samsum")
-                except:
+                except Exception:
                     # Use a working alternative dataset for testing
                     logger.info("Using CNN/DailyMail dataset as fallback...")
                     dataset = load_dataset("cnn_dailymail", "3.0.0")
 
             # Save dataset to disk
-            dataset_path = os.path.join(
-                self.config.unzip_dir, "samsum_dataset"
-            )
+            dataset_path = os.path.join(self.config.unzip_dir, "samsum_dataset")
             dataset.save_to_disk(dataset_path)
 
             logger.info(f"Dataset downloaded and saved to {dataset_path}")

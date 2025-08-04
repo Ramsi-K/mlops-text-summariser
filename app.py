@@ -1,12 +1,11 @@
-from fastapi import FastAPI
-import uvicorn
-import sys
 import os
-from fastapi.templating import Jinja2Templates
-from starlette.responses import RedirectResponse
-from fastapi.responses import Response
-from src.textSummariser.pipeline.predicition_pipeline import PredictionPipeline
 
+import uvicorn
+from fastapi import FastAPI
+from fastapi.responses import Response
+from starlette.responses import RedirectResponse
+
+from src.textSummariser.pipeline.predicition_pipeline import PredictionPipeline
 
 text: str = "What is Text Summarisation?"
 
@@ -31,7 +30,6 @@ async def training():
 @app.post("/predict")
 async def predict_route(text):
     try:
-
         obj = PredictionPipeline()
         text = obj.predict(text)
         return text

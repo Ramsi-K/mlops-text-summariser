@@ -1,18 +1,15 @@
-from src.textSummariser.constants import *
-from src.textSummariser.utils.common import read_yaml, create_directories
-
+from src.textSummariser.constants import CONFIG_FILE_PATH, PARAMS_FILE_PATH
 from src.textSummariser.entity import (
     DataIngestionConfig,
-    ModelEvaluationConfig,
     DataTransformationConfig,
+    ModelEvaluationConfig,
     ModelTrainerConfig,
 )
+from src.textSummariser.utils.common import create_directories, read_yaml
 
 
 class ConfigurationManager:
-    def __init__(
-        self, config_path=CONFIG_FILE_PATH, params_filepath=PARAMS_FILE_PATH
-    ):
+    def __init__(self, config_path=CONFIG_FILE_PATH, params_filepath=PARAMS_FILE_PATH):
         self.config = read_yaml(config_path)
         self.params = read_yaml(params_filepath)
 
@@ -63,6 +60,9 @@ class ConfigurationManager:
             eval_steps=params.eval_steps,
             save_steps=params.save_steps,
             gradient_accumulation_steps=params.gradient_accumulation_steps,
+            max_steps=getattr(
+                params, "max_steps", -1
+            ),  # Default to -1 if not specified
         )
         return model_trainer_config
 

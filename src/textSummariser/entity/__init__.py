@@ -31,6 +31,7 @@ class ModelTrainerConfig:
     eval_steps: int
     save_steps: float
     gradient_accumulation_steps: int
+    max_steps: int = -1  # -1 means no limit
 
 
 @dataclass(frozen=True)

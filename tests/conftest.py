@@ -1,13 +1,15 @@
-import pytest
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock
+
+import pytest
+
 from src.textSummariser.entity import (
     DataIngestionConfig,
     DataTransformationConfig,
-    ModelTrainerConfig,
     ModelEvaluationConfig,
+    ModelTrainerConfig,
 )
 
 
@@ -83,7 +85,5 @@ def mock_dataset():
             },
         ],
         "validation": [{"dialogue": "See you later!", "summary": "Farewell"}],
-        "test": [
-            {"dialogue": "Thanks for your help!", "summary": "Gratitude"}
-        ],
+        "test": [{"dialogue": "Thanks for your help!", "summary": "Gratitude"}],
     }
