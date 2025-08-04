@@ -72,7 +72,7 @@ jobs:
 
       - name: Test pipeline with mock training
         run: |
-          uv run python main.py --mock-train
+          uv run python main.py --stage all --quick-train
 
       - name: Test API endpoints
         run: |

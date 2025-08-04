@@ -3,6 +3,7 @@ import os
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import Response
+from pydantic import BaseModel
 from starlette.responses import RedirectResponse
 
 from src.textSummariser.pipeline.predicition_pipeline import PredictionPipeline
@@ -27,15 +28,19 @@ async def training():
         return Response(f"Error Occurred! {e}")
 
 
+class TextInput(BaseModel):
+    text: str
+
+
 @app.post("/predict")
-async def predict_route(text):
+async def predict_route(input_data: TextInput):
     try:
         obj = PredictionPipeline()
-        text = obj.predict(text)
-        return text
+        summary = obj.predict(input_data.text)
+        return {"summary": summary}
     except Exception as e:
-        raise e
+        return {"error": str(e)}
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

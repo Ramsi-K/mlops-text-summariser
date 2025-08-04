@@ -97,10 +97,17 @@ This project addresses the challenge of automatically summarising conversational
 
 ### Running the Pipeline
 
-#### Option 1: Full Training Pipeline
+#### Option 1: Quick Training Pipeline (Recommended)
 
 ```bash
-# Run complete 4-stage pipeline
+# Run complete 4-stage pipeline with quick training (3 steps)
+python main.py --quick-train
+```
+
+#### Option 2: Full Training Pipeline
+
+```bash
+# Run complete 4-stage pipeline (takes 2+ hours)
 python main.py
 ```
 
@@ -163,13 +170,11 @@ curl -X POST "http://localhost:8000/predict" \
 # Build image
 docker build -t text-summariser .
 
-# Run container
+# Run container (uses base model if no trained model available)
 docker run -p 8000:8000 text-summariser
-
-# Or using make
-make docker-build
-make docker-run
 ```
+
+**Note:** The Docker container will use the base Pegasus model for inference if no trained model artifacts are available. To use a fine-tuned model, run the training pipeline first.
 
 ## Project Structure
 
