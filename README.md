@@ -51,6 +51,7 @@ This project addresses the challenge of automatically summarising conversational
 ✅ **MLflow Integration** - Experiment tracking and model registry
 ✅ **FastAPI Server** - Production-ready inference API
 ✅ **Docker Support** - Containerized deployment
+✅ **Cloud Deployment** - AWS infrastructure with Terraform (IaC)
 ✅ **Configuration Management** - YAML-based configs with validation
 ✅ **Comprehensive Logging** - Structured logging throughout pipeline
 ✅ **Model Monitoring** - Performance tracking and drift detection
@@ -176,6 +177,30 @@ docker run -p 8000:8000 text-summariser
 
 **Note:** The Docker container will use the base Pegasus model for inference if no trained model artifacts are available. To use a fine-tuned model, run the training pipeline first.
 
+### ☁️ Cloud Deployment (AWS)
+
+Deploy to production using Infrastructure as Code (Terraform):
+
+```bash
+# Prerequisites: AWS CLI configured, Terraform installed
+# One-command deployment
+./infrastructure/deploy.sh
+```
+
+**What gets deployed:**
+- ECS Fargate cluster with auto-scaling
+- Application Load Balancer for high availability
+- ECR repository for container images
+- VPC with security groups
+- CloudWatch monitoring and logging
+
+**Access your deployed application:**
+- Application URL: Output from deployment script
+- Health check: `{URL}/health`
+- API docs: `{URL}/docs`
+
+See [`infrastructure/README.md`](infrastructure/README.md) for detailed deployment instructions.
+
 ## Project Structure
 
 ```text
@@ -187,6 +212,14 @@ mlops-text-summariser/
 │   ├── pipeline/                 # Training pipelines
 │   ├── utils/                    # Utility functions
 │   └── logging.py               # Logging configuration
+├── infrastructure/               # Infrastructure as Code
+│   ├── terraform/               # Terraform configurations
+│   │   ├── main.tf              # Main infrastructure
+│   │   ├── variables.tf         # Input variables
+│   │   └── outputs.tf           # Output values
+│   ├── deploy.sh                # Automated deployment script
+│   ├── destroy.sh               # Infrastructure cleanup script
+│   └── README.md                # Deployment documentation
 ├── config/                       # Configuration files
 │   └── config.yaml              # Main configuration
 ├── notebooks/                    # Jupyter notebooks for exploration
