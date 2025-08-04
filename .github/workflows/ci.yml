@@ -91,10 +91,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Bandit Security Scan
-        uses: tj-actions/bandit@v5.1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
         with:
-          options: '-r src/ -f json -o bandit-report.json'
+          version: 'latest'
+
+      - name: Set up Python
+        run: uv python install 3.9
+
+      - name: Install dependencies
+        run: |
+          uv sync
+          uv pip install -r requirements.txt
+
+      - name: Run Bandit Security Scan
+        run: |
+          uv run bandit -r src/ -f json -o bandit-report.json
 
       - name: Upload security scan results
         uses: actions/upload-artifact@v4
