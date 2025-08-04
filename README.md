@@ -1,10 +1,13 @@
 # Conversational Text Summarisation with MLOps Pipeline
 
+> **MLOps Zoomcamp Final Project** - A complete production-ready text summarization pipeline with AWS deployment
+
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI/CD Pipeline](https://github.com/Ramsi-K/mlops-text-summariser/actions/workflows/ci.yml/badge.svg)](https://github.com/Ramsi-K/mlops-text-summariser/actions/workflows/ci.yml)
-[![Security Scan](https://img.shields.io/badge/security-bandit-yellow.svg)](https://bandit.readthedocs.io/)
+[![Code Quality](https://img.shields.io/badge/code%20quality-tested-green.svg)](https://github.com/Ramsi-K/mlops-text-summariser/actions/workflows/ci.yml)
+[![MLOps Zoomcamp](https://img.shields.io/badge/MLOps-Zoomcamp-orange.svg)](https://github.com/DataTalksClub/mlops-zoomcamp)
 
 ## Problem Statement
 
@@ -47,15 +50,15 @@ This project addresses the challenge of automatically summarising conversational
 
 ## Features
 
-✅ **4-Stage Modular Pipeline** - Data ingestion, transformation, training, evaluation
-✅ **MLflow Integration** - Experiment tracking and model registry
-✅ **FastAPI Server** - Production-ready inference API
-✅ **Docker Support** - Containerized deployment
-✅ **Cloud Deployment** - AWS infrastructure with Terraform (IaC)
-✅ **Configuration Management** - YAML-based configs with validation
-✅ **Comprehensive Logging** - Structured logging throughout pipeline
-✅ **Model Monitoring** - Performance tracking and drift detection
-✅ **Reproducible Experiments** - Seed management and environment control
+- **4-Stage Modular Pipeline** - Data ingestion, transformation, training, evaluation
+- **MLflow Integration** - Experiment tracking and model registry
+- **FastAPI Server** - Production-ready inference API
+- **Docker Support** - Containerized deployment
+- **Cloud Deployment** - AWS infrastructure with Terraform (IaC)
+- **Configuration Management** - YAML-based configs with validation
+- **Comprehensive Logging** - Structured logging throughout pipeline
+- **Model Monitoring** - Performance tracking and drift detection
+- **Reproducible Experiments** - Seed management and environment control
 
 ## Quick Start
 
@@ -188,6 +191,7 @@ Deploy to production using Infrastructure as Code (Terraform):
 ```
 
 **What gets deployed:**
+
 - ECS Fargate cluster with auto-scaling
 - Application Load Balancer for high availability
 - ECR repository for container images
@@ -195,6 +199,7 @@ Deploy to production using Infrastructure as Code (Terraform):
 - CloudWatch monitoring and logging
 
 **Access your deployed application:**
+
 - Application URL: Output from deployment script
 - Health check: `{URL}/health`
 - API docs: `{URL}/docs`
@@ -436,9 +441,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
+This project was developed as part of the [DataTalks.Club MLOps Zoomcamp](https://github.com/DataTalksClub/mlops-zoomcamp) - an excellent free course on MLOps engineering practices.
+
+**Special thanks to:**
+
+- **DataTalks.Club** for providing comprehensive MLOps education and community
 - [Hugging Face Transformers](https://huggingface.co/transformers/) for the model architecture
-- [SAMSum Dataset](https://arxiv.org/abs/1911.12237) creators
-- [MLflow](https://mlflow.org/) for experiment tracking
-- [FastAPI](https://fastapi.tiangolo.com/) for the web framework
+- [SAMSum Dataset](https://arxiv.org/abs/1911.12237) creators for the conversational data
+- [MLflow](https://mlflow.org/) for experiment tracking and model registry
+- [FastAPI](https://fastapi.tiangolo.com/) for the production-ready web framework
 
 ---
