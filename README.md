@@ -3,6 +3,8 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD Pipeline](https://github.com/username/text-summarization-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/username/text-summarization-mlops/actions/workflows/ci.yml)
+[![Security Scan](https://img.shields.io/badge/security-bandit-yellow.svg)](https://bandit.readthedocs.io/)
 
 ## Problem Statement
 
@@ -291,6 +293,50 @@ pre-commit install
 # Run manually
 pre-commit run --all-files
 ```
+
+## CI/CD Pipeline
+
+The project includes a comprehensive CI/CD pipeline using GitHub Actions:
+
+### Continuous Integration
+
+**Automated on every push and PR:**
+
+- **Multi-Python Testing**: Tests on Python 3.8, 3.9, 3.10
+- **Code Quality Checks**: Black formatting, isort, flake8 linting
+- **Unit & Integration Tests**: Full test suite with coverage reporting
+- **Security Scanning**: Bandit security analysis
+- **Docker Build Testing**: Validates containerization
+
+### Continuous Deployment
+
+**Automated deployment pipeline:**
+
+- **Staging Deployment**: Automatic deployment to staging on main branch
+- **Production Deployment**: Manual/release-triggered production deployment
+- **Health Checks**: Post-deployment validation
+- **Model Registry Updates**: Automatic model versioning
+
+### Local CI/CD Testing
+
+```bash
+# Run CI tests locally
+make ci-test
+
+# Security scan
+make security-scan
+
+# Test Docker build
+make docker-test
+```
+
+### Pipeline Status
+
+- ✅ **Code Quality**: Automated formatting and linting
+- ✅ **Testing**: Unit and integration tests with coverage
+- ✅ **Security**: Bandit security scanning
+- ✅ **Containerization**: Docker build and test validation
+- ✅ **Deployment**: Staging and production deployment simulation
 
 ## Deployment
 

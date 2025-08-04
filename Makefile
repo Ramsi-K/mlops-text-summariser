@@ -46,6 +46,26 @@ pre-commit-install:  ## Install pre-commit hooks
 pre-commit-run:  ## Run pre-commit on all files
 	uv run pre-commit run --all-files
 
+# CI/CD commands
+ci-test:  ## Run CI tests locally
+	uv run pytest tests/ -v --cov=src --cov-report=term
+	uv run black --check src
+	uv run isort --check-only src
+	uv run flake8 src
+
+security-scan:  ## Run security scan
+	uv run bandit -r src/ -f json -o bandit-report.json
+	@echo "Security scan completed. Check bandit-report.json"
+
+docker-test:  ## Test Docker build and run
+	docker build -t text-summarizer-test .
+	docker run -d -p 8001:8000 --name test-container text-summarizer-test
+	sleep 10
+	curl -f http://localhost:8001/ || (docker stop test-container && docker rm test-container && exit 1)
+	docker stop test-container
+	docker rm test-container
+	@echo "✅ Docker test completed successfully"
+
 # Pipeline stages
 ingest:  ## Run data ingestion only
 	uv run main.py --stage ingest
