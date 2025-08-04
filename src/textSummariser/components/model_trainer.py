@@ -1,5 +1,3 @@
-import os
-
 import torch
 from datasets import load_from_disk
 from transformers import (
@@ -19,12 +17,23 @@ class ModelTrainer:
     def __init__(self, config: ModelTrainerConfig):
         self.config = config
         self.mlflow_tracker = MLflowTracker(
-            experiment_name="text-summarization-training"
+            experiment_name="text-summarisation-training"
         )
 
     def train(self):
+        # Check if quick training mode is enabled
+        import os
+
+        quick_train = os.getenv("QUICK_TRAIN", "false").lower() == "true"
+
+        run_name = (
+            "pegasus-samsum-quick-training"
+            if quick_train
+            else "pegasus-samsum-training"
+        )
+
         # Start MLflow run
-        with self.mlflow_tracker.start_run(run_name="pegasus-samsum-training"):
+        with self.mlflow_tracker.start_run(run_name=run_name):
             device = "cuda" if torch.cuda.is_available() else "cpu"
             logger.info(f"Using device: {device}")
 
@@ -72,35 +81,70 @@ class ModelTrainer:
             }
             self.mlflow_tracker.log_params(training_params)
 
-            trainer_args = TrainingArguments(
-                output_dir=self.config.root_dir,
-                num_train_epochs=self.config.num_train_epochs,
-                warmup_steps=self.config.warmup_steps,
-                per_device_train_batch_size=self.config.per_device_train_batch_size,
-                per_device_eval_batch_size=self.config.per_device_train_batch_size,
-                weight_decay=self.config.weight_decay,
-                logging_steps=self.config.logging_steps,
-                eval_strategy=self.config.evaluation_strategy,
-                eval_steps=self.config.eval_steps,
-                save_steps=self.config.save_steps,
-                gradient_accumulation_steps=self.config.gradient_accumulation_steps,
-                max_steps=self.config.max_steps,  # Limit training steps
-                logging_dir=f"{self.config.root_dir}/logs",  # For tensorboard logs
-                report_to=["mlflow"],  # Enable MLflow logging
-                run_name="pegasus-samsum-training",
-            )
+            # Override training arguments for quick training
+            if quick_train:
+                trainer_args = TrainingArguments(
+                    output_dir=self.config.root_dir,
+                    num_train_epochs=1,
+                    warmup_steps=0,  # No warmup for quick training
+                    per_device_train_batch_size=1,
+                    per_device_eval_batch_size=1,
+                    weight_decay=self.config.weight_decay,
+                    logging_steps=1,  # Log every step
+                    eval_strategy="steps",
+                    eval_steps=2,  # Evaluate after 2 steps
+                    save_steps=10000,  # Don't save during quick training
+                    gradient_accumulation_steps=1,
+                    max_steps=3,  # Only 3 training steps!
+                    logging_dir=f"{self.config.root_dir}/logs",
+                    report_to=["mlflow"],
+                    run_name=run_name,
+                )
+                logger.info(
+                    "QUICK TRAINING: Using minimal training steps (max_steps=3)"
+                )
+            else:
+                trainer_args = TrainingArguments(
+                    output_dir=self.config.root_dir,
+                    num_train_epochs=self.config.num_train_epochs,
+                    warmup_steps=self.config.warmup_steps,
+                    per_device_train_batch_size=self.config.per_device_train_batch_size,
+                    per_device_eval_batch_size=self.config.per_device_train_batch_size,
+                    weight_decay=self.config.weight_decay,
+                    logging_steps=self.config.logging_steps,
+                    eval_strategy=self.config.evaluation_strategy,
+                    eval_steps=self.config.eval_steps,
+                    save_steps=self.config.save_steps,
+                    gradient_accumulation_steps=self.config.gradient_accumulation_steps,
+                    max_steps=self.config.max_steps,
+                    logging_dir=f"{self.config.root_dir}/logs",
+                    report_to=["mlflow"],
+                    run_name=run_name,
+                )
 
-            # Use smaller subset for faster training during development
-            train_subset = dataset_samsum_pt["train"].select(
-                range(min(100, len(dataset_samsum_pt["train"])))
-            )
-            eval_subset = dataset_samsum_pt["validation"].select(
-                range(min(50, len(dataset_samsum_pt["validation"])))
-            )
-
-            logger.info(
-                f"Using {len(train_subset)} training samples and {len(eval_subset)} validation samples for quick training"
-            )
+            # Use different subset sizes based on training mode
+            if quick_train:
+                # Super small subset for quick training
+                train_subset = dataset_samsum_pt["train"].select(
+                    range(min(10, len(dataset_samsum_pt["train"])))
+                )
+                eval_subset = dataset_samsum_pt["validation"].select(
+                    range(min(5, len(dataset_samsum_pt["validation"])))
+                )
+                logger.info(
+                    f"QUICK TRAINING: Using {len(train_subset)} training samples and {len(eval_subset)} validation samples"
+                )
+            else:
+                # Regular subset for development
+                train_subset = dataset_samsum_pt["train"].select(
+                    range(min(100, len(dataset_samsum_pt["train"])))
+                )
+                eval_subset = dataset_samsum_pt["validation"].select(
+                    range(min(50, len(dataset_samsum_pt["validation"])))
+                )
+                logger.info(
+                    f"Using {len(train_subset)} training samples and {len(eval_subset)} validation samples for training"
+                )
 
             trainer = Trainer(
                 model=model_pegasus,
@@ -131,7 +175,7 @@ class ModelTrainer:
                 model=model_pegasus,
                 tokenizer=tokenizer,
                 artifact_path="model",
-                model_name="pegasus-samsum-summarizer",
+                model_name="pegasus-samsum-summariser",
             )
 
             # Log model artifacts

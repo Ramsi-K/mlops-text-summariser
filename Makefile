@@ -1,7 +1,7 @@
 .PHONY: help install test lint format train serve clean docker-build docker-run
 
 help:  ## Show this help message
-	@echo "Text Summarization MLOps Pipeline"
+	@echo "Text Summarisation MLOps Pipeline"
 	@echo "=================================="
 	@echo ""
 	@echo "Available commands:"
@@ -46,6 +46,26 @@ pre-commit-install:  ## Install pre-commit hooks
 pre-commit-run:  ## Run pre-commit on all files
 	uv run pre-commit run --all-files
 
+# CI/CD commands
+ci-test:  ## Run CI tests locally
+	uv run pytest tests/ -v --cov=src --cov-report=term
+	uv run black --check src
+	uv run isort --check-only src
+	uv run flake8 src
+
+security-scan:  ## Run security scan
+	uv run bandit -r src/ -f json -o bandit-report.json
+	@echo "Security scan completed. Check bandit-report.json"
+
+docker-test:  ## Test Docker build and run
+	docker build -t text-summariser-test .
+	docker run -d -p 8001:8000 --name test-container text-summariser-test
+	sleep 10
+	curl -f http://localhost:8001/ || (docker stop test-container && docker rm test-container && exit 1)
+	docker stop test-container
+	docker rm test-container
+	@echo "✅ Docker test completed successfully"
+
 # Pipeline stages
 ingest:  ## Run data ingestion only
 	uv run main.py --stage ingest
@@ -55,6 +75,9 @@ transform:  ## Run data transformation only
 
 train:  ## Run model training only
 	uv run main.py --stage train
+
+quick-train:  ## Run quick training (3 steps) for testing
+	uv run main.py --stage all --quick-train
 
 evaluate:  ## Run model evaluation only
 	uv run main.py --stage evaluate
@@ -70,10 +93,10 @@ serve:  ## Start FastAPI server
 
 # Docker commands
 docker-build:  ## Build Docker image
-	docker build -t text-summarizer .
+	docker build -t text-summariser .
 
 docker-run:  ## Run Docker container
-	docker run -p 8000:8000 text-summarizer
+	docker run -p 8000:8000 text-summariser
 
 # MLflow commands
 mlflow-ui:  ## Start MLflow UI

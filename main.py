@@ -54,6 +54,26 @@ def run_model_training():
         raise e
 
 
+def run_quick_training():
+    """Run quick training stage - actual training but with minimal steps"""
+    STAGE_NAME = "Quick Model Training stage"
+    try:
+        logger.info(f">>>>>> stage {STAGE_NAME} started <<<<<<")
+        logger.info("Running quick training with minimal steps for testing...")
+
+        # Set environment variable to enable quick training mode
+        import os
+
+        os.environ["QUICK_TRAIN"] = "true"
+
+        model_trainer_pipeline = ModelTrainerTrainingPipeline()
+        model_trainer_pipeline.initiate_model_trainer()
+        logger.info(f">>>>>> stage {STAGE_NAME} completed <<<<<<\n\nx==========x")
+    except Exception as e:
+        logger.exception(e)
+        raise e
+
+
 def run_mock_training():
     """Run mock training stage - creates dummy model files without actual training"""
     from pathlib import Path
@@ -107,7 +127,7 @@ def run_model_evaluation():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Text Summarization MLOps Pipeline")
+    parser = argparse.ArgumentParser(description="Text Summarisation MLOps Pipeline")
     parser.add_argument(
         "--stage",
         choices=["all", "ingest", "transform", "train", "evaluate"],
@@ -119,11 +139,16 @@ def main():
         action="store_true",
         help="Skip actual training and create mock model files",
     )
+    parser.add_argument(
+        "--quick-train",
+        action="store_true",
+        help="Run actual training but with minimal steps for testing",
+    )
 
     args = parser.parse_args()
 
     # If running training stage, ask user if they want to do actual training
-    if args.stage in ["all", "train"] and not args.mock_train:
+    if args.stage in ["all", "train"] and not args.mock_train and not args.quick_train:
         response = (
             input(
                 "Do you want to run actual model training? This may take a long time. (y/N): "
@@ -138,6 +163,8 @@ def main():
     logger.info(f"Starting pipeline with stage: {args.stage}")
     if args.mock_train:
         logger.info("Mock training mode enabled - will skip actual training")
+    elif args.quick_train:
+        logger.info("Quick training mode enabled - minimal training steps for testing")
 
     if args.stage in ["all", "ingest"]:
         run_data_ingestion()
@@ -148,6 +175,8 @@ def main():
     if args.stage in ["all", "train"]:
         if args.mock_train:
             run_mock_training()
+        elif args.quick_train:
+            run_quick_training()
         else:
             run_model_training()
 

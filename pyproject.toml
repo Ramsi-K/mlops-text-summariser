@@ -1,7 +1,7 @@
 [project]
-name = "text-summarizer"
+name = "text-summariser"
 version = "0.1.0"
-description = "MLOps Text Summarization Pipeline"
+description = "MLOps Text Summarisation Pipeline"
 requires-python = ">=3.8"
 
 [tool.black]

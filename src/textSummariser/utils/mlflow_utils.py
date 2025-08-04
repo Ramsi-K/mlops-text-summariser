@@ -7,7 +7,7 @@ from src.textSummariser.logging import logger
 class MLflowTracker:
     """MLflow experiment tracking utilities"""
 
-    def __init__(self, experiment_name="text-summarization", tracking_uri=None):
+    def __init__(self, experiment_name="text-summarisation", tracking_uri=None):
         self.experiment_name = experiment_name
 
         # Set tracking URI (local by default)

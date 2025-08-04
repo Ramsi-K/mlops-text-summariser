@@ -14,7 +14,7 @@ class ModelEvaluation:
     def __init__(self, config: ModelEvaluationConfig):
         self.config = config
         self.mlflow_tracker = MLflowTracker(
-            experiment_name="text-summarization-evaluation"
+            experiment_name="text-summarisation-evaluation"
         )
 
     def generate_batch_sized_chunks(self, list_of_elements, batch_size):

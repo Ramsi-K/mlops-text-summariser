@@ -1,12 +1,14 @@
-# Conversational Text Summarization with MLOps Pipeline
+# Conversational Text Summarisation with MLOps Pipeline
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI/CD Pipeline](https://github.com/Ramsi-K/mlops-text-summariser/actions/workflows/ci.yml/badge.svg)](https://github.com/Ramsi-K/mlops-text-summariser/actions/workflows/ci.yml)
+[![Security Scan](https://img.shields.io/badge/security-bandit-yellow.svg)](https://bandit.readthedocs.io/)
 
 ## Problem Statement
 
-This project addresses the challenge of automatically summarizing conversational text using state-of-the-art transformer models. Traditional summarization approaches struggle with:
+This project addresses the challenge of automatically summarising conversational text using state-of-the-art transformer models. Traditional summarisation approaches struggle with:
 
 - **Multi-speaker conversations** with context switching
 - **Informal language patterns** in chat logs and dialogues
@@ -16,11 +18,11 @@ This project addresses the challenge of automatically summarizing conversational
 **Business Value:**
 
 - 🚀 Reduce manual effort in processing meeting notes by 80%
-- 💬 Enable real-time chat summarization for customer support
+- 💬 Enable real-time chat summarisation for customer support
 - 📄 Automate document processing for legal and healthcare sectors
 - ⏱️ Process hours of conversation into concise summaries in seconds
 
-**Dataset:** SAMSum - A collection of 16k messenger-like conversations with human-annotated summaries, specifically designed for conversational summarization tasks.
+**Dataset:** SAMSum - A collection of 16k messenger-like conversations with human-annotated summaries, specifically designed for conversational summarisation tasks.
 
 ## Architecture Overview
 
@@ -142,7 +144,7 @@ make serve
 
 **API Endpoints:**
 
-- `POST /predict` - Summarize text
+- `POST /predict` - Summarise text
 - `POST /train` - Trigger training pipeline
 - `GET /health` - Health check
 - `GET /metrics` - Model performance metrics
@@ -159,10 +161,10 @@ curl -X POST "http://localhost:8000/predict" \
 
 ```bash
 # Build image
-docker build -t text-summarizer .
+docker build -t text-summariser .
 
 # Run container
-docker run -p 8000:8000 text-summarizer
+docker run -p 8000:8000 text-summariser
 
 # Or using make
 make docker-build
@@ -292,6 +294,50 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+## CI/CD Pipeline
+
+The project includes a comprehensive CI/CD pipeline using GitHub Actions:
+
+### Continuous Integration
+
+**Automated on every push and PR:**
+
+- **Multi-Python Testing**: Tests on Python 3.8, 3.9, 3.10
+- **Code Quality Checks**: Black formatting, isort, flake8 linting
+- **Unit & Integration Tests**: Full test suite with coverage reporting
+- **Security Scanning**: Bandit security analysis
+- **Docker Build Testing**: Validates containerization
+
+### Continuous Deployment
+
+**Automated deployment pipeline:**
+
+- **Staging Deployment**: Automatic deployment to staging on main branch
+- **Production Deployment**: Manual/release-triggered production deployment
+- **Health Checks**: Post-deployment validation
+- **Model Registry Updates**: Automatic model versioning
+
+### Local CI/CD Testing
+
+```bash
+# Run CI tests locally
+make ci-test
+
+# Security scan
+make security-scan
+
+# Test Docker build
+make docker-test
+```
+
+### Pipeline Status
+
+- ✅ **Code Quality**: Automated formatting and linting
+- ✅ **Testing**: Unit and integration tests with coverage
+- ✅ **Security**: Bandit security scanning
+- ✅ **Containerization**: Docker build and test validation
+- ✅ **Deployment**: Staging and production deployment simulation
+
 ## Deployment
 
 ### Local Development
@@ -304,8 +350,8 @@ uvicorn app:app --reload
 
 ```bash
 # Using Docker
-docker build -t text-summarizer .
-docker run -p 8000:8000 text-summarizer
+docker build -t text-summariser .
+docker run -p 8000:8000 text-summariser
 
 # Using cloud platforms (AWS/GCP/Azure)
 # See deployment/ directory for infrastructure code
