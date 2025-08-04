@@ -12,13 +12,35 @@ class DataTransformation:
         self.tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name)
 
     def convert_examples_to_features(self, example_batch):
+        # Ensure we have valid text data
+        dialogues = example_batch["dialogue"]
+        summaries = example_batch["summary"]
+
+        # Convert to list of strings if needed and filter out None/empty values
+        if not isinstance(dialogues, list):
+            dialogues = [dialogues] if dialogues else [""]
+        if not isinstance(summaries, list):
+            summaries = [summaries] if summaries else [""]
+
+        # Clean the data - ensure all entries are strings
+        dialogues = [str(d) if d is not None else "" for d in dialogues]
+        summaries = [str(s) if s is not None else "" for s in summaries]
+
         input_encodings = self.tokenizer(
-            example_batch["dialogue"], max_length=1024, truncation=True
+            dialogues,
+            max_length=1024,
+            truncation=True,
+            padding=True,
+            return_tensors=None,
         )
 
         with self.tokenizer.as_target_tokenizer():
             target_encodings = self.tokenizer(
-                example_batch["summary"], max_length=128, truncation=True
+                summaries,
+                max_length=128,
+                truncation=True,
+                padding=True,
+                return_tensors=None,
             )
 
         return {

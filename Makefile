@@ -1,0 +1,88 @@
+.PHONY: help install test lint format train serve clean docker-build docker-run
+
+help:  ## Show this help message
+	@echo "Text Summarization MLOps Pipeline"
+	@echo "=================================="
+	@echo ""
+	@echo "Available commands:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install:  ## Install dependencies with UV
+	uv pip install -r requirements.txt
+	@echo "✅ Dependencies installed"
+
+install-dev:  ## Install development dependencies
+	uv pip install -r requirements.txt
+	uv pip install pytest black flake8 isort pre-commit
+	pre-commit install
+	@echo "✅ Development environment set up"
+
+test:  ## Run tests
+	pytest tests/ -v --cov=src --cov-report=html
+	@echo "✅ Tests completed"
+
+lint:  ## Run linting
+	flake8 src tests
+	black --check src tests
+	isort --check-only src tests
+	@echo "✅ Linting completed"
+
+format:  ## Format code
+	black src tests
+	isort src tests
+	@echo "✅ Code formatted"
+
+# Pipeline stages
+ingest:  ## Run data ingestion only
+	uv run main.py --stage ingest
+
+transform:  ## Run data transformation only
+	uv run main.py --stage transform
+
+train:  ## Run model training only
+	uv run main.py --stage train
+
+evaluate:  ## Run model evaluation only
+	uv run main.py --stage evaluate
+
+pipeline:  ## Run full pipeline
+	uv run main.py --stage all
+
+serve:  ## Start FastAPI server
+	uv run uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+
+# Docker commands
+docker-build:  ## Build Docker image
+	docker build -t text-summarizer .
+
+docker-run:  ## Run Docker container
+	docker run -p 8000:8000 text-summarizer
+
+# Utility commands
+clean:  ## Clean artifacts and cache
+	rm -rf artifacts/
+	rm -rf logs/
+	rm -rf mlruns/
+	rm -rf __pycache__/
+	rm -rf .pytest_cache/
+	rm -rf htmlcov/
+	find . -type f -name "*.pyc" -delete
+	find . -type d -name "__pycache__" -delete
+	@echo "✅ Cleaned up artifacts and cache"
+
+logs:  ## Show recent logs
+	@echo "Recent pipeline logs:"
+	@echo "===================="
+	@if [ -d "logs" ]; then tail -n 50 logs/*.log 2>/dev/null || echo "No log files found"; else echo "No logs directory found"; fi
+
+status:  ## Check pipeline status
+	@echo "Pipeline Status Check"
+	@echo "===================="
+	@echo "Artifacts directory:"
+	@ls -la artifacts/ 2>/dev/null || echo "No artifacts directory found"
+	@echo ""
+	@echo "Model files:"
+	@ls -la artifacts/model_trainer/ 2>/dev/null || echo "No model files found"
+	@echo ""
+	@echo "Recent logs:"
+	@tail -n 10 logs/*.log 2>/dev/null || echo "No recent logs found"

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+
 @dataclass
 class DataIngestionConfig:
     root_dir: Path
@@ -8,12 +9,15 @@ class DataIngestionConfig:
     local_data_file: Path
     unzip_dir: Path
 
+
 @dataclass
 class DataTransformationConfig:
     root_dir: Path
     data_path: Path
     tokenizer_name: Path
 
+
+@dataclass
 class ModelTrainerConfig:
     root_dir: Path
     data_path: Path
@@ -27,6 +31,7 @@ class ModelTrainerConfig:
     eval_steps: int
     save_steps: float
     gradient_accumulation_steps: int
+
 
 @dataclass(frozen=True)
 class ModelEvaluationConfig:
